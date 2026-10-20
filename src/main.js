@@ -1,14 +1,18 @@
 import {loadState,saveState,toggleDrop,savedItems,addHub,addItem,recordEvent,hubStats,dropKey} from "./model.js";
 import "./style.css";
-let state=loadState(localStorage);
+const browserStorage=(()=>{
+ try { return window.localStorage; }
+ catch { return {getItem:()=>null,setItem:()=>{}}; }
+})();
+let state=loadState(browserStorage);
 const app=document.querySelector("#app");
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 const btn=(label,fn,cls="button")=>{const n=el("button",cls,label);n.type="button";n.addEventListener("click",fn);return n;};
 const link=(label,href,cls="")=>{const a=el("a",cls,label);a.href=href;return a;};
-const persist=()=>saveState(localStorage,state);
+const persist=()=>saveState(browserStorage,state);
 const route=()=>new URLSearchParams(location.search);
 const urlFor=(view,hub)=>{const p=new URLSearchParams();if(view)p.set("view",view);if(hub)p.set("hub",hub);return "/"+(p.size?"?"+p:"");};
-function navigate(view="",hub=""){history.pushState(null,"",urlFor(view,hub));render();}
+function navigate(view="",hub=""){history.pushState(null,"",urlFor(view,hub));previousHub="";render();window.scrollTo({top:0,behavior:"instant"});}
 function sectionTitle(title,subtitle){const d=el("div","section-title");d.append(el("h2","",title),el("p","muted",subtitle));return d;}
 function cardHeader(hub){const box=el("div","hub-meta");box.append(el("span","chip",hub.category),el("span","muted",hub.place||"Location not specified"));return box;}
 function shell(view){app.replaceChildren();const header=el("header","topbar");const brand=btn("DOCK.",()=>navigate(),"brand");brand.setAttribute("aria-label","DOCK home");const nav=el("nav","nav");nav.setAttribute("aria-label","Primary");for(const [name,v] of [["Explore",""],["My Drops","drops"],["Hub Studio","studio"]]){const n=btn(name,()=>navigate(v),"nav-link"+(view===v?" active":""));nav.append(n);}header.append(brand,nav);app.append(header);const main=el("main","container");app.append(main);const footer=el("footer","footer","Future-by-Fie · DOCK concept prototype · All hubs and analytics are simulated and stored in this browser.");app.append(footer);return main;}
@@ -21,4 +25,4 @@ function studioPage(main){const head=el("section","page-head");head.append(el("p
  const chosen=state.hubs.find(h=>h.id===route().get("hub"))||state.hubs[0];const manage=el("section","section");manage.append(sectionTitle("Manage hub content","Select a hub to add an information item."));const select=el("select","input");select.setAttribute("aria-label","Choose hub");for(const h of state.hubs){const opt=el("option","",h.title);opt.value=h.id;opt.selected=h.id===chosen.id;select.append(opt);}select.addEventListener("change",()=>navigate("studio",select.value));manage.append(select);const itemForm=el("form","form");itemForm.append(el("h3","","Add an information item"));field(itemForm,"Item title","title",true);field(itemForm,"Type (product, event, guide...)","kind");field(itemForm,"Summary","description",false,true);field(itemForm,"Details","details",false,true);field(itemForm,"Source URL (https://)","url");const itemError=el("p","error");itemForm.append(itemError);const add=el("button","button primary","Add item");add.type="submit";itemForm.append(add);itemForm.addEventListener("submit",e=>{e.preventDefault();try{state=addItem(state,chosen.id,Object.fromEntries(new FormData(itemForm)));persist();render();}catch(ex){itemError.textContent=ex.message;}});manage.append(itemForm);const stats=hubStats(state,chosen.id);const strip=el("div","stats");for(const [key,label] of [["discover","Discoveries"],["explore","Explorations"],["dock","Dock actions"]]){const box=el("div","stat");box.append(el("strong","",String(stats[key])),el("span","muted",label));strip.append(box);}manage.append(el("h3","","Local demo analytics"),strip,el("p","small","These are browser-only interaction counts, not real visitor analytics."),btn("Open hub ↗",()=>navigate("hub",chosen.id),"button"));main.append(manage);}
 let previousHub="";
 function render(){const params=route(),view=params.get("view")||"",hubId=params.get("hub")||"";const main=shell(view);if(view==="hub"){const hub=state.hubs.find(h=>h.id===hubId);if(hub){if(previousHub!==hubId){state=recordEvent(state,"discover",hubId);persist();previousHub=hubId;}hubPage(main,hub);return;}}previousHub="";if(view==="drops")dropsPage(main);else if(view==="studio")studioPage(main);else home(main);}
-window.addEventListener("popstate",render);render();
+window.addEventListener("popstate",()=>{previousHub="";render();});render();
