@@ -1,5 +1,5 @@
 import {loadState,saveState,toggleDrop,savedItems,addHub,addItem,recordEvent,hubStats,dropKey} from "./model.js";
-import "./style.css";
+
 let state=loadState(localStorage);
 const app=document.querySelector("#app");
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
