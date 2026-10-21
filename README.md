@@ -54,3 +54,7 @@ First wedge: trade shows and exhibitions, where visitors need a frictionless way
 6. Security, accessibility and integration testing; real pilot with an event organizer.
 
 **Future-by-Fie** · Independent innovation concept.
+
+## Collaboration & rights
+
+This public repository is available for evaluation; it is **not currently offered under an open-source license**. We are open to conversations with potential technical and commercial partners, but contributions and reuse require prior written agreement. See [Collaboration & intellectual property](COLLABORATION.md) and [Build with us](https://www.future-by-fie.com/#partners).
