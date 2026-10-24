@@ -6,6 +6,12 @@ DOCK is a Future-by-Fie proof-of-concept for a **personal information layer for 
 
 This is **not** DOCKS (the separate wearable attachment concept), nor a file-transfer tool.
 
+## Live demo
+
+**Try DOCK in your browser:** https://future-by-fie.github.io/DOCK-/
+
+Explore a seeded information hub, save an item to My Drops, and try Hub Studio. Demo content is fictional. Locally created hubs and saved items remain in this browser only.
+
 ## What works in this MVP
 - Mobile-first Information Hubs for a fictional trade show, museum and property.
 - Deep-linkable hub URLs suitable for turning into QR codes.
